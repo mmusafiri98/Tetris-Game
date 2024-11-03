@@ -124,6 +124,15 @@
             font-size: 28px;
         }
 
+        #Restart {
+            animation: blink 0.7s steps(2, start) infinite;
+            background: greenyellow;
+            border-radius: 2px;
+            color: rgb(126, 126, 145);
+            cursor: pointer;
+            font-size: 28px;
+        }
+
         @keyframes blink {
             to {
                 outline: #e1ff5f solid 1px;
@@ -290,6 +299,7 @@
         <p>Time: <span id="time-display">00:00</span></p>
         <button id="start">Start</button>
         <button id="Pause">Pause</button>
+        <button id="Restart">Restart</button>
         <div id="keyboard">
             <div class="row">
                 <button id="left"><span class="material-icons">arrow_left</span></button>
@@ -308,6 +318,7 @@
         const scoreDisplay = document.getElementById("score-display");
         const levelDisplay = document.getElementById("level-display");
         const timeDisplay = document.getElementById("time-display");
+
         const width = 10;
         const height = 20;
         const board = Array.from({ length: height }, () => Array(width).fill(0));
@@ -338,12 +349,12 @@
             timeDisplay.textContent = formatTime(timeElapsed);
         }
 
-        // Format time in MM:SS
         function formatTime(seconds) {
             const minutes = Math.floor(seconds / 60);
             const secs = seconds % 60;
             return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
+
 
 
         function createGrid() {
@@ -355,9 +366,26 @@
                 }
             }
         }
-        // Add this function to your script
+        function restartGame() {
+            // Réinitialiser les variables de jeu
+            score = 0;
+            level = 1;
+            timeElapsed = 0;
+            isPaused = false;
+            board.forEach((row, y) => board[y].fill(0)); // Réinitialiser le plateau
+            tetrisContainer.innerHTML = ""; // Vider la grille
+            createGrid(); // Recréer la grille
+            newTetromino(); // Générer un nouveau tétrimino
+            updateDisplay(); // Mettre à jour l'affichage
+            startGame(); // Relancer le jeu
+        }
+
+        // Modifier la fonction showGameOver pour activer le redémarrage
         function showGameOver() {
+            clearInterval(gameInterval);
+            clearInterval(timerInterval);
             tetrisContainer.innerHTML = "<h1 style='color: red;'>GAME OVER</h1>";
+
         }
 
         function newTetromino() {
@@ -473,7 +501,7 @@
                 });
             });
         }
-
+        //fonction pour nettoye la lignie du jeux
         function clearLines() {
             let linesCleared = 0;
             board.forEach((row, y) => {
@@ -483,31 +511,51 @@
                     board.unshift(Array(width).fill(0));
                 }
             });
+            //si la variables linesCleared est majeur de 0 
             if (linesCleared > 0) {
+                //on calcule le score 
                 score += linesCleared * 100; // Update score (100 points per line)
                 level = Math.floor(score / 1000) + 1; // Update level based on score
                 updateDisplay(); // Update the display
             }
         }
 
+
+
+
+        //fontion pour commence le jeux 
         function startGame() {
+            //si il ya gameInterval on utilise la fonction clearInterval 
             if (gameInterval) clearInterval(gameInterval);
+            //si il ya timerInterval on utilise la fonction clearInterval pour nettoye le interval 
             if (timerInterval) clearInterval(timerInterval);
+            //la variables timeInterval permete de accede a le nouveInterval du temps dans mon jeux de tetros 
             timerInterval = setInterval(() => {
+                //si il ya pas des  pause 
                 if (!isPaused) {
+                    //on compte le nombre des temps ecoule 
                     timeElapsed++;
+                    //est on appele la fonction UpdateDisplay pour mettre ca ajour sur l interface du jeux 
                     updateDisplay();
+
+
                 }
             }, 1000);
+            //la fonction gameInterval permete de accede au jeux que il est pas en pause 
+            //pour faire tombe le bloc de tetris 
             gameInterval = setInterval(() => {
                 if (!isPaused) moveDown();
             }, 500);
         }
-
+        //fontion pour la pause du jeux 
         function togglePause() {
+            //si pause que il ya pas pause 
             isPaused = !isPaused;
+            //si il ya pause 
             if (isPaused) {
+                //on ajoute le bouton pour la pause 
                 const pauseButton = document.getElementById("Pause");
+                //on ajoute le bouton resume avec textContent qui permete de remetre le jeux a sont stade intialie 
                 pauseButton.textContent = isPaused ? "Resume" : "Pause";
             }
         }
@@ -518,7 +566,7 @@
         document.getElementById("right").addEventListener("click", () => moveTetromino(1));
         document.getElementById("rotate").addEventListener("click", rotateTetromino);
         document.getElementById("down").addEventListener("click", moveDown);
-
+        document.getElementById("Restart").addEventListener("click", restartGame);
         createGrid();
         newTetromino();
         updateDisplay();
