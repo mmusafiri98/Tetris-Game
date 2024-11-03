@@ -1,0 +1,524 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+    <title>Tetris</title>
+    <style>
+        /* ... styles existants ... */
+        #tetris-container {
+            display: grid;
+            grid-template-rows: repeat(20, 30px);
+            grid-template-columns: repeat(10, 30px);
+            gap: 1px;
+            background-color: #222;
+            border: 2px solid #fff;
+        }
+
+        .cell {
+            width: 30px;
+            height: 30px;
+            background-color: #333;
+        }
+
+        .active {
+            background-color: red;
+        }
+
+        .landed {
+            background-color: #1976d2;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url('tetris.jpg');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            margin: 0;
+            padding: 0;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+
+        #keyboard {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 2px;
+        }
+
+        #row {
+            display: flex;
+            justify-content: center;
+            margin: 5px;
+        }
+
+        #pause {
+            animation: blink 0.7s steps(2, pause) infinite;
+            background: rgb(201, 195, 195);
+            border-radius: 2px;
+            color: rgb(155, 76, 76);
+            cursor: pointer;
+            font-size: 22px
+        }
+
+        button {
+            padding: 9px 10px;
+            font-size: 2px;
+            margin: 5px;
+            cursor: pointer;
+            border: 2px solid #007bff;
+            background-color: #fff;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #007bff;
+            color: white;
+        }
+
+        #tetris {
+            width: 360px;
+            border: 1px solid blue;
+            padding: 20px;
+        }
+
+        #canvas {
+            width: 220px;
+            height: 440px;
+            background-color: black;
+            color: pink;
+            position: relative;
+        }
+
+        #canvas h1 {
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            font-size: 30px;
+            padding-top: 200px;
+        }
+
+        .piece {
+            border: 1px solid white;
+            position: absolute;
+        }
+
+        #start {
+            animation: blink 0.7s steps(2, start) infinite;
+            background: yellow;
+            border-radius: 2px;
+            color: rgb(126, 126, 145);
+            cursor: pointer;
+            font-size: 28px;
+        }
+
+        @keyframes blink {
+            to {
+                outline: #e1ff5f solid 1px;
+            }
+        }
+
+        .red {
+            color: #f00000;
+        }
+
+        .square {
+            position: absolute;
+            width: 19px;
+            height: 19px;
+            border: 1px solid white;
+        }
+
+        .type0 {
+            background-color: #a000f0;
+        }
+
+        .type1 {
+            background-color: #00f0f0;
+        }
+
+        .type2 {
+            background-color: #f0a000;
+        }
+
+        .type3 {
+            background-color: #0000f0;
+        }
+
+        .type4 {
+            background-color: #00f000;
+        }
+
+        .type5 {
+            background-color: #f00000;
+        }
+
+        .type6 {
+            background-color: #f0f000;
+        }
+
+        #next_shape {
+            position: relative;
+            background-color: #000;
+            border: 1px solid white;
+            width: 110px;
+            height: 115px;
+        }
+
+        #info {
+            background-color: blue;
+            color: #fff;
+            float: right;
+            width: 110px;
+            height: 620px;
+            padding: 10px;
+        }
+
+        #Pause {
+            animation: blink 0.7s steps(2, pause) infinite;
+            background: violet;
+            border-radius: 2px;
+            color: white;
+            cursor: pointer;
+            font-size: 28px;
+        }
+
+        p {
+            font-size: 18px;
+        }
+
+        #left {
+            animation: blink 0.7s steps(2, pause) infinite;
+            background: rgb(201, 195, 195);
+            border-radius: 2px;
+            color: rgb(155, 76, 76);
+            cursor: pointer;
+            font-size: 29px;
+        }
+
+        #right {
+            animation: blink 0.7s steps(2, pause) infinite;
+            background: rgb(201, 195, 195);
+            border-radius: 2px;
+            color: rgb(155, 76, 76);
+            cursor: pointer;
+            font-size: 29px;
+        }
+
+        #rotate {
+            animation: blink 0.7s steps(2, pause) infinite;
+            background: rgb(201, 195, 195);
+            border-radius: 2px;
+            color: rgb(155, 76, 76);
+            cursor: pointer;
+            font-size: 22px;
+        }
+
+        #top {
+            animation: blink 0.7s steps(2, pause) infinite;
+            background: rgb(201, 195, 195);
+            border-radius: 2px;
+            color: rgb(155, 76, 76);
+            cursor: pointer;
+            font-size: 22px;
+        }
+
+        h1 {
+            font-family: 'Arial', sans-serif;
+            font-size: 5em;
+            letter-spacing: 5px;
+            animation: colorAnimation 2s infinite alternate;
+            text-shadow: 0px 0px 10px rgba(255, 255, 255, 0.5);
+        }
+
+        @keyframes colorAnimation {
+            0% {
+                background-color: #FF6347;
+            }
+
+            16% {
+                background-color: #FFD700;
+            }
+
+            32% {
+                background-color: #1E90FF;
+            }
+
+            48% {
+                background-color: #32CD32;
+            }
+
+            64% {
+                background-color: #EE82EE;
+            }
+
+            80% {
+                background-color: #FF8C00;
+            }
+
+            100% {
+                background-color: #00CED1;
+            }
+        }
+
+        .active {
+            animation: colorAnimation 1s infinite alternate;
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Tetris</h1>
+    <div id="tetris-container"></div>
+    <div id="info">
+        <div id="next_shape"></div>
+        <p>Score: <span id="score-display">0</span></p>
+        <p>Level: <span id="level-display">1</span></p>
+        <p>Time: <span id="time-display">00:00</span></p>
+        <button id="start">Start</button>
+        <button id="Pause">Pause</button>
+        <div id="keyboard">
+            <div class="row">
+                <button id="left"><span class="material-icons">arrow_left</span></button>
+                <button id="right"><span class="material-icons">arrow_right</span></button>
+            </div>
+            <div class="row">
+                <button id="rotate"><span class="material-icons">rotate_right</span></button>
+                <button id="down"><span class="material-icons">arrow_downward</span></button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Variables globales
+        const tetrisContainer = document.getElementById("tetris-container");
+        const scoreDisplay = document.getElementById("score-display");
+        const levelDisplay = document.getElementById("level-display");
+        const timeDisplay = document.getElementById("time-display");
+        const width = 10;
+        const height = 20;
+        const board = Array.from({ length: height }, () => Array(width).fill(0));
+
+        const tetrominos = [
+            [[1, 1, 1, 1]], // I
+            [[1, 1], [1, 1]], // O
+            [[0, 1, 0], [1, 1, 1]], // T
+            [[1, 1, 0], [0, 1, 1]], // S
+            [[0, 1, 1], [1, 1, 0]], // Z
+            [[1, 0, 0], [1, 1, 1]], // L
+            [[0, 0, 1], [1, 1, 1]], // J
+        ];
+
+        let currentTetromino;
+        let currentPosition = { x: 0, y: 0 };
+        let score = 0; // Initial score
+        let level = 1; // Initial level
+        let timeElapsed = 0; // Time in seconds
+        let gameInterval;
+        let timerInterval;
+        let isPaused = false;
+
+        // Update score, level, and time display
+        function updateDisplay() {
+            scoreDisplay.textContent = score;
+            levelDisplay.textContent = level;
+            timeDisplay.textContent = formatTime(timeElapsed);
+        }
+
+        // Format time in MM:SS
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = seconds % 60;
+            return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+
+        function createGrid() {
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const cell = document.createElement("div");
+                    cell.classList.add("cell");
+                    tetrisContainer.appendChild(cell);
+                }
+            }
+        }
+        // Add this function to your script
+        function showGameOver() {
+            tetrisContainer.innerHTML = "<h1 style='color: red;'>GAME OVER</h1>";
+        }
+
+        function newTetromino() {
+            const randomIndex = Math.floor(Math.random() * tetrominos.length);
+            currentTetromino = tetrominos[randomIndex];
+            currentPosition = { x: 4, y: 0 };
+
+            if (!isValidMove(currentPosition)) {
+                showGameOver();
+                clearInterval(gameInterval);
+                clearInterval(timerInterval); // Stop the timer
+                return;
+            }
+            drawTetromino();
+        }
+
+        function isValidMove(position) {
+            return currentTetromino.every((row, y) => {
+                return row.every((value, x) => {
+                    if (!value) return true; // If the cell is empty, it's valid
+                    const newX = position.x + x;
+                    const newY = position.y + y;
+                    return (
+                        newX >= 0 && newX < width && // Within bounds
+                        newY >= 0 && newY < height && // Within bounds
+                        !board[newY][newX] // Cell is empty
+                    );
+                });
+            });
+        }
+
+
+        function drawTetromino() {
+            const cells = document.querySelectorAll("#tetris-container .cell");
+            currentTetromino.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) {
+                        const index = (currentPosition.y + y) * width + (currentPosition.x + x);
+                        cells[index].classList.add("active");
+                    }
+                });
+            });
+        }
+
+        function undrawTetromino() {
+            const cells = document.querySelectorAll("#tetris-container .cell");
+            currentTetromino.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) {
+                        const index = (currentPosition.y + y) * width + (currentPosition.x + x);
+                        cells[index].classList.remove("active");
+                    }
+                });
+            });
+        }
+
+        function moveTetromino(direction) {
+            undrawTetromino();
+            currentPosition.x += direction;
+            if (collision()) {
+                currentPosition.x -= direction;
+            }
+            drawTetromino();
+        }
+
+        function rotateTetromino() {
+            undrawTetromino();
+            const originalTetromino = currentTetromino;
+            currentTetromino = currentTetromino[0].map((_, index) => currentTetromino.map(row => row[index])).reverse();
+            if (collision()) {
+                currentTetromino = originalTetromino; // revert rotation
+            }
+            drawTetromino();
+        }
+
+        function moveDown() {
+            undrawTetromino();
+            currentPosition.y += 1;
+            if (collision()) {
+                currentPosition.y -= 1;
+                drawTetromino();
+                mergeTetromino();
+                clearLines();
+                newTetromino();
+            }
+            drawTetromino();
+        }
+
+        function collision() {
+            return currentTetromino.some((row, y) => {
+                return row.some((value, x) => {
+                    if (value) {
+                        const newX = currentPosition.x + x;
+                        const newY = currentPosition.y + y;
+                        return (
+                            newX < 0 ||
+                            newX >= width ||
+                            newY >= height ||
+                            (newY >= 0 && board[newY][newX])
+                        );
+                    }
+                    return false;
+                });
+            });
+        }
+
+        function mergeTetromino() {
+            currentTetromino.forEach((row, y) => {
+                row.forEach((value, x) => {
+                    if (value) {
+                        board[currentPosition.y + y][currentPosition.x + x] = 1;
+                    }
+                });
+            });
+        }
+
+        function clearLines() {
+            let linesCleared = 0;
+            board.forEach((row, y) => {
+                if (row.every(cell => cell)) {
+                    linesCleared++;
+                    board.splice(y, 1);
+                    board.unshift(Array(width).fill(0));
+                }
+            });
+            if (linesCleared > 0) {
+                score += linesCleared * 100; // Update score (100 points per line)
+                level = Math.floor(score / 1000) + 1; // Update level based on score
+                updateDisplay(); // Update the display
+            }
+        }
+
+        function startGame() {
+            if (gameInterval) clearInterval(gameInterval);
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                if (!isPaused) {
+                    timeElapsed++;
+                    updateDisplay();
+                }
+            }, 1000);
+            gameInterval = setInterval(() => {
+                if (!isPaused) moveDown();
+            }, 500);
+        }
+
+        function togglePause() {
+            isPaused = !isPaused;
+            if (isPaused) {
+                const pauseButton = document.getElementById("Pause");
+                pauseButton.textContent = isPaused ? "Resume" : "Pause";
+            }
+        }
+
+        document.getElementById("start").addEventListener("click", startGame);
+        document.getElementById("Pause").addEventListener("click", togglePause);
+        document.getElementById("left").addEventListener("click", () => moveTetromino(-1));
+        document.getElementById("right").addEventListener("click", () => moveTetromino(1));
+        document.getElementById("rotate").addEventListener("click", rotateTetromino);
+        document.getElementById("down").addEventListener("click", moveDown);
+
+        createGrid();
+        newTetromino();
+        updateDisplay();
+    </script>
+</body>
+
+</html>
