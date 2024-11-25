@@ -291,6 +291,11 @@
 
 <body>
     <h1>Tetris</h1>
+    <!-- Musica di sottofondo -->
+    <audio id="background-music" loop autoplay>
+        <source src="MSTR_-_MSTR_-_Choro_bavario_Loop.mp3" type="audio/mp3">
+        Il tuo browser non supporta il tag audio.
+    </audio>
     <div id="tetris-container"></div>
     <div id="info">
         <div id="next_shape"></div>
@@ -377,7 +382,11 @@
             createGrid(); // Recréer la grille
             newTetromino(); // Générer un nouveau tétrimino
             updateDisplay(); // Mettre à jour l'affichage
-            startGame(); // Relancer le jeu
+            startGame();
+            // Relancer le jeu
+            // Fermare la musica e riavviarla
+            backgroundMusic.currentTime = 0;
+            backgroundMusic.play();
         }
 
         // Modifier la fonction showGameOver pour activer le redémarrage
@@ -537,6 +546,8 @@
                     timeElapsed++;
                     //est on appele la fonction UpdateDisplay pour mettre ca ajour sur l interface du jeux 
                     updateDisplay();
+                    // Avviare la musica
+                    backgroundMusic.play();
 
 
                 }
@@ -557,6 +568,7 @@
                 const pauseButton = document.getElementById("Pause");
                 //on ajoute le bouton resume avec textContent qui permete de remetre le jeux a sont stade intialie 
                 pauseButton.textContent = isPaused ? "Resume" : "Pause";
+                backgroundMusic.pause(); // Fermare la musica durante la pausa
             }
         }
 
@@ -567,6 +579,12 @@
         document.getElementById("rotate").addEventListener("click", rotateTetromino);
         document.getElementById("down").addEventListener("click", moveDown);
         document.getElementById("Restart").addEventListener("click", restartGame);
+        const backgroundMusic = document.getElementById("background-music");
+
+        document.getElementById("start").addEventListener("click", () => {
+            startGame();
+            backgroundMusic.play(); // Avvia la musica
+        });
         createGrid();
         newTetromino();
         updateDisplay();
